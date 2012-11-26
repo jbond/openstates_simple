@@ -1,4 +1,7 @@
 OpenstatesSimple::Application.routes.draw do
+  resources :legislators
+
+
   # The priority is based upon order of creation:
   # first created -> highest priority.
 
