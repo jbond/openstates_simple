@@ -1,6 +1,6 @@
 OpenstatesSimple::Application.routes.draw do
-  resources :legislators
 
+  match 'legislator/:leg_id' => 'legislators#lookup', :as => :lookup
 
   # The priority is based upon order of creation:
   # first created -> highest priority.

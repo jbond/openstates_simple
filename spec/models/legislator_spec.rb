@@ -2,7 +2,27 @@ require 'spec_helper'
 
 describe Legislator do
 
-  describe 'load' do
+  describe 'self#lookup' do
+    before :each do
+      FactoryGirl.create(:legislator, :leg_id => "IAL000555")
+    end
+
+    it "returns legislator with given leg_id" do
+      actual = Legislator.lookup("IAL000555")
+      actual.leg_id.should eq "IAL000555"
+    end
+
+    it "returns nil if no legislator with given leg_id is found" do
+      l = Legislator.lookup("IAL999999")
+      l.should == nil
+    end
+  end
+
+  describe 'self#load' do
+    before :each do
+      File.stub(:open).with("data.csv", "rb") { StringIO.new(filecontents1) }
+      Legislator.load "data.csv"
+    end
 
     let(:filecontents1) do
       "leg_id,full_name,first_name,middle_name,last_name,suffixes,nickname,active,state,chamber,district,party,transparencydata_id,photo_url,created_at,updated_at\n" +
@@ -44,17 +64,13 @@ describe Legislator do
     end
 
 
-    it "should parse and load legislators from a csv file" do
-      File.stub(:open).with("data.csv", "rb") { StringIO.new(filecontents1) }
-      Legislator.load "data.csv"
+    it "parses and loads legislators from a csv file" do
       Legislator.all.should have(2).items
       (Legislator.find_by_leg_id! "IAL000999").attributes.should include(expected_leg1)
       (Legislator.find_by_leg_id! "IAL000888").attributes.should include(expected_leg2)
     end
 
-    it "should add new legislators and update existing ones when re-loading" do
-      File.stub(:open).with("data.csv", "rb") { StringIO.new(filecontents1) }
-      Legislator.load "data.csv"
+    it "adds new legislators and updates existing ones when re-loading" do
       File.stub(:open).with("data.csv", "rb") { StringIO.new(filecontents2) }
       Legislator.load "data.csv"
       Legislator.all.should have(3).items
